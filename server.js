@@ -66,7 +66,11 @@ const server = http.createServer(async (req, res) => {
   try {
     const r = await fetch(url, { method, headers: fwd, body, redirect: 'manual' });
     const buf = Buffer.from(await r.arrayBuffer());
-    return send(res, 200, { status: r.status, body_b64: buf.toString('base64') });
+    // Return response headers too so the box can manage the WP login cookie jar + rest-nonce
+    // across relay hops (cookie login, not Basic Auth). set_cookie is the raw Set-Cookie list.
+    const hdrs = {}; r.headers.forEach((v, k) => { hdrs[k] = v; });
+    const set_cookie = (typeof r.headers.getSetCookie === 'function') ? r.headers.getSetCookie() : [];
+    return send(res, 200, { status: r.status, headers: hdrs, set_cookie, body_b64: buf.toString('base64') });
   } catch (e) {
     return send(res, 502, { error: 'fetch failed', detail: String(e && e.message || e) });
   }
