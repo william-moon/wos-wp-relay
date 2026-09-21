@@ -1,0 +1,8 @@
+{
+  "name": "wos-wp-relay",
+  "version": "1.0.0",
+  "description": "Tiny WordPress REST forwarder on a clean Render IP so the box can edit thewellorderedspace.com past SiteGround's Anti-Bot AI wall (no Mac, no ngrok).",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=18" }
+}
