@@ -54,7 +54,7 @@ const server = http.createServer(async (req, res) => {
     if (e && e.message === 'too_large') return send(res, 413, { error: 'too_large', detail: 'File is too big to upload. Please use a smaller video.' });
     return send(res, 400, { error: 'bad json' });
   }
-  const { url, method = 'GET', headers = {}, body_b64 = null } = payload || {};
+  const { url, method = 'GET', headers = {}, body_b64 = null, redirect = 'follow' } = payload || {};
   if (!url || (ALLOW && !String(url).startsWith(ALLOW))) return send(res, 400, { error: 'url not allowed' });
 
   // strip hop-by-hop headers we should not forward
@@ -64,7 +64,7 @@ const server = http.createServer(async (req, res) => {
   const body = body_b64 != null ? Buffer.from(body_b64, 'base64') : undefined;
 
   try {
-    const r = await fetch(url, { method, headers: fwd, body, redirect: 'manual' });
+    const r = await fetch(url, { method, headers: fwd, body, redirect: (redirect === 'manual' ? 'manual' : 'follow') });
     const buf = Buffer.from(await r.arrayBuffer());
     // Return response headers too so the box can manage the WP login cookie jar + rest-nonce
     // across relay hops (cookie login, not Basic Auth). set_cookie is the raw Set-Cookie list.
